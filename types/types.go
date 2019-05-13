@@ -7,3 +7,10 @@ const (
 	Unregister
 	Talk
 )
+
+type MessageStatus int
+
+const (
+	Unread MessageStatus = iota
+	Read
+)

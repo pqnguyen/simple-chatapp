@@ -4,14 +4,31 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"github.com/pqnguyen/simple-chatapp/backend/message_queue"
+	"github.com/pqnguyen/simple-chatapp/backend/redis"
+	"github.com/pqnguyen/simple-chatapp/backend/session"
 	"github.com/pqnguyen/simple-chatapp/message"
 	"log"
 	"net"
 )
 
-type Server struct{}
+type Config struct {
+	Redis        *redis.Redis
+	MessageQueue *message_queue.MessageQueue
+	Session      *session.Session
+	Port         string
+}
 
-func (server *Server) Start(port string) {
+type Server struct {
+	config Config
+}
+
+func New(config *Config) *Server {
+	return &Server{config: *config}
+}
+
+func (server *Server) Start() {
+	port := server.config.Port
 	fmt.Printf("Starting server at port %s \n", port)
 	listener, err := net.Listen("tcp", port)
 	if err != nil {
@@ -19,6 +36,7 @@ func (server *Server) Start(port string) {
 	}
 	defer listener.Close()
 	manager := ClientManager{
+		server:     server,
 		clients:    make(map[int]Client),
 		register:   make(chan Client),
 		unregister: make(chan Client),
@@ -37,6 +55,8 @@ func (server *Server) Start(port string) {
 		if err := json.Unmarshal(buf, &register); err != nil {
 			log.Printf("error while unmarshal register message: %s", err)
 		}
+		// record which sever connect to client
+		server.config.Redis.Put(register.UID, port)
 		fmt.Printf("user %d connected \n", register.UID)
 		client := Client{
 			clientManager: &manager,

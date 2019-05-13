@@ -88,8 +88,8 @@ func (client *Client) start() {
 	}
 }
 
-func NewClient(uid int) *Client {
-	conn, err := net.Dial("tcp", ":8080")
+func NewClient(uid int, port string) *Client {
+	conn, err := net.Dial("tcp", port)
 	if err != nil {
 		log.Fatalf("error while connect to server on port 8080: %s", err)
 	}
@@ -111,7 +111,9 @@ func main() {
 		log.Fatal("missing args")
 	}
 	fmt.Printf("user %d: Chatting with %d \n", identity, receiver)
-	client := NewClient(identity)
+	client := NewClient(identity, port)
+	//client.sendTalk(1, "sada")
+	//client.sendTalk(1, "asdasd")
 	wg := sync.WaitGroup{}
 	wg.Add(1)
 	go func() {
