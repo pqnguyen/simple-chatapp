@@ -1,7 +1,8 @@
 package server
 
 import (
-	"github.com/pqnguyen/simple-chatapp/backend/message_queue"
+	"github.com/pqnguyen/simple-chatapp/backend/models"
+	"github.com/pqnguyen/simple-chatapp/message"
 	"log"
 )
 
@@ -42,12 +43,16 @@ func (manager *ClientManager) start() {
 	}
 }
 
-func (manager *ClientManager) forward(message *message_queue.Message) {
+func (manager *ClientManager) forward(message *message.Talk) {
 	client, ok := manager.getClient(message.To)
 	if !ok {
+		models.SaveMessage(*message)
 		log.Printf("user %d doesn't exists", message.To)
+		return
 	}
-	if err := client.sendMessage(message.Content); err != nil {
+	if err := client.sendMessage(*message); err != nil {
+		client.clientManager.unregister <- client
+		models.SaveMessage(*message)
 		log.Printf("error while send message to client: %s", err)
 	}
 }

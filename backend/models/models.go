@@ -1,8 +1,10 @@
 package models
 
 import (
+	"encoding/json"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/pqnguyen/simple-chatapp/message"
 	"github.com/pqnguyen/simple-chatapp/types"
 	"log"
 )
@@ -26,4 +28,13 @@ type Message struct {
 	Sender   int
 	Message  string
 	Status   types.MessageStatus
+}
+
+func SaveMessage(talk message.Talk) {
+	buf, _ := json.Marshal(talk)
+	DB.Create(&Message{
+		Message:  string(buf),
+		Receiver: talk.To,
+		Sender:   talk.UID,
+	})
 }

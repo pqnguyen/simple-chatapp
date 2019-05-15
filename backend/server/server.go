@@ -62,7 +62,7 @@ func (server *Server) Start() {
 			clientManager: &manager,
 			uid:           register.UID,
 			conn:          conn,
-			data:          make(chan string),
+			data:          make(chan message.Talk),
 		}
 		manager.register <- client
 		go client.receive()

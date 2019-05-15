@@ -67,9 +67,10 @@ func (client *Client) sendUnregister() {
 func (client *Client) listen() {
 	reader := bufio.NewReader(client.conn)
 	for {
-		//buf, err := reader.ReadBytes('\n')
-		buf := make([]byte, 1024)
-		_, err := reader.Read(buf)
+		buf, err := reader.ReadBytes('\n')
+		if len(buf) == 0 {
+			continue
+		}
 		if err != nil {
 			log.Fatalf("error while read message from connection: %s", err)
 		}

@@ -1,18 +1,20 @@
 package message_queue
 
+import "github.com/pqnguyen/simple-chatapp/message"
+
 type Message struct {
 	To      int
 	Content string
 }
 
-type handler func(msg *Message)
+type handler func(msg *message.Talk)
 
 type queue struct {
-	ch chan *Message
+	ch chan *message.Talk
 }
 
 func newQueue() *queue {
-	return &queue{ch: make(chan *Message)}
+	return &queue{ch: make(chan *message.Talk)}
 }
 
 type MessageQueue struct {
@@ -42,10 +44,10 @@ func (manager *MessageQueue) Subscribe(topic string, handler handler) {
 	}()
 }
 
-func (manager *MessageQueue) Publish(topic string, msg *Message) error {
+func (manager *MessageQueue) Publish(topic string, talk *message.Talk) error {
 	if _, exists := manager.queues[topic]; !exists {
 		manager.register(topic)
 	}
-	manager.queues[topic].ch <- msg
+	manager.queues[topic].ch <- talk
 	return nil
 }

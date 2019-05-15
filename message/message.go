@@ -45,3 +45,11 @@ func NewTalk(uid int, to int, content string) *Talk {
 		Content: content,
 	}
 }
+
+type Ping struct {
+	Content string `json:"content"`
+}
+
+func NewPing() *Ping {
+	return &Ping{"Ping"}
+}
